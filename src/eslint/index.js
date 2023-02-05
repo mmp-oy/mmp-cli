@@ -1,54 +1,69 @@
-
-const prompts = require('prompts')
-const rules = require('./rules')
-const { initTypescriptESlint } = require('./Typescript')
-const { initVueESlintrc } = require('./vue')
-
-
-
+const fs = require("fs");
+const prompts = require("prompts");
+const rules = require("./rules");
+const { initTypescriptESlint } = require("./Typescript");
+const { initVueESlintrc } = require("./vue");
+const prettier = require("prettier/standalone");
+const { Log } = require("../utils");
+const parser = require("prettier/parser-babel");
 async function initESLint() {
   return prompts([
     {
-      type: 'toggle',
-      name: 'Typescript',
-      message: 'Use Typescript?',
+      type: "toggle",
+      name: "Typescript",
+      message: "Use Typescript?",
       initial: true,
-      active: 'yes',
-      inactive: 'no'
-    }
-  ])
+      active: "yes",
+      inactive: "no",
+    },
+  ]);
 }
-async function initESLintFile(config) {
+function initESLintFile(config) {
   config.files.eslintrc = {
-    "env": {
-      "browser": true,
-      "es2023": true,
-
+    env: {
+      browser: true,
+      es2023: true,
     },
-    "extends": ["prettier"],
-    "parserOptions": {
-      "ecmaVersion": "latest",
-      "sourceType": "module",
-      "ecmaFeatures": {
-        "jsx": true
-      }
+    extends: ["prettier"],
+    parserOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
+      ecmaFeatures: {
+        jsx: true,
+      },
     },
-    "plugins": ["eslint-plugin-jsdoc"],
+    plugins: ["eslint-plugin-jsdoc"],
+    overrides: [],
+    globals: {
+      process: true,
+      __dirname: true,
+    },
     rules,
-    "globals": {
-      "process": true,
-      "__dirname": true
-    },
-  }
+  };
 
+  initTypescriptESlint(config);
 
-  initTypescriptESlint(config)
-
-  initVueESlintrc(config)
-
+  initVueESlintrc(config);
 }
 
-function renderESLint() {
+function renderESLint(config) {
+  const { files, projectPath } = config;
+  const { eslintrc } = files;
 
+  fs.writeFile(
+    `${projectPath}/.eslintrc`,
+    prettier.format(JSON.stringify(eslintrc), {
+      parser: "json",
+      plugins: [parser],
+    }),
+    (err) => {
+      if (err) {
+        Log(err);
+        Log.error("---------------------- Write .eslintrc err --------------------");
+      } else {
+        Log.success("---------------------- Write .eslintrc success --------------------");
+      }
+    }
+  );
 }
-module.exports = { initESLint, renderESLint, initESLintFile }
+module.exports = { initESLint, renderESLint, initESLintFile };

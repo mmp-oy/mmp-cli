@@ -1,36 +1,7 @@
 const fs = require("fs");
 const prompts = require("prompts");
 const minimist = require("minimist");
-const prettier = require("prettier/standalone");
-const parser = require("prettier/parser-babel");
 
-// console.log(
-//   prettier.format(
-//     JSON.stringify({
-//       name: "cli",
-//       version: "1.0.0",
-//       description: "",
-//       main: "index.js",
-//       scripts: {
-//         start: "node index.js",
-//       },
-//       keywords: [],
-//       author: "",
-//       license: "ISC",
-//       dependencies: {
-//         kolorist: "^1.6.0",
-//         minimist: "^1.2.7",
-//         prettier: "^2.8.3",
-//         prompts: "^2.4.2",
-//       },
-//     }),
-//     {
-//       parser: "json",
-//       plugins: [parser],
-//     }
-//   )
-// );
-// console.log( JSON.stringify(prettier));
 const {
   Log,
   initESLint,
@@ -40,6 +11,7 @@ const {
   initESLintFile,
   renderESLint,
   renderStylelint,
+  initStylelintFile,
   renderGitHooks,
   renderPrettier,
   initReact,
@@ -101,6 +73,7 @@ async function initTemplateFiles(config) {
     return;
   }
   initESLintFile(config);
+  initStylelintFile(config);
 }
 
 function renderTemplate(config) {
@@ -109,27 +82,12 @@ function renderTemplate(config) {
     Log.success("---------------------- test finsh --------------------");
     return;
   }
-  const { files, projectPath } = config;
+  const { projectPath } = config;
   if (!fs.existsSync(projectPath)) {
     fs.mkdirSync(projectPath);
   }
-  const { eslintrc } = files;
-
-  fs.writeFile(
-    `${projectPath}/.eslintrc`,
-    prettier.format(JSON.stringify(eslintrc), {
-      parser: "json",
-      plugins: [parser],
-    }),
-    (err) => {
-      if (err) {
-        Log(err);
-        Log.error("---------------------- Write .eslintrc err --------------------");
-      } else {
-        Log.success("---------------------- Write .eslintrc success --------------------");
-      }
-    }
-  );
+  renderESLint(config);
+  renderStylelint(config);
 }
 
 async function init() {
