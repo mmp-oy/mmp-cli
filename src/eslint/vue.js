@@ -86,7 +86,7 @@ function initVueESlintrc(config) {
     };
     initTsconfig(config);
 
-    Object.assign(config.pkg, { devDependencies });
+    Object.assign(config.files.pkg.devDependencies, devDependencies);
   }
 }
 

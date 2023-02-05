@@ -32,7 +32,7 @@ function initTsconfig(config) {
 
 function initTypescriptESlint(config) {
   const { eslint, files } = config;
-  const { eslintrc, pkg } = files;
+  const { eslintrc } = files;
   if (eslint.Typescript) {
     eslintrc.parserOptions.project = ["./tsconfig.json"];
     let devDependencies = {};
@@ -64,7 +64,7 @@ function initTypescriptESlint(config) {
       "@typescript-eslint/parser": "^5.49.0",
     };
 
-    Object.assign(pkg, { devDependencies });
+    Object.assign(config.files.pkg.devDependencies, devDependencies);
     initTsconfig(config);
   }
 }

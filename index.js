@@ -1,6 +1,8 @@
 const fs = require("fs");
-const prompts = require("prompts");
 const minimist = require("minimist");
+const prompts = require("prompts");
+const prettier = require("prettier/standalone");
+const parser = require("prettier/parser-babel");
 
 const {
   Log,
@@ -9,6 +11,7 @@ const {
   initPrettier,
   initGitHooks,
   initESLintFile,
+  initPrettierFile,
   renderESLint,
   renderStylelint,
   initStylelintFile,
@@ -74,8 +77,31 @@ async function initTemplateFiles(config) {
   }
   initESLintFile(config);
   initStylelintFile(config);
-}
 
+  initPrettierFile(config);
+}
+function renderPackage(config) {
+  const {
+    files: { pkg },
+    projectPath,
+  } = config;
+
+  fs.writeFile(
+    `${projectPath}/package.json`,
+    prettier.format(JSON.stringify(pkg), {
+      parser: "json",
+      plugins: [parser],
+    }),
+    (err) => {
+      if (err) {
+        Log(err);
+        Log.error("---------------------- Write pkg err --------------------");
+      } else {
+        Log.success("---------------------- Write pkg success --------------------");
+      }
+    }
+  );
+}
 function renderTemplate(config) {
   if (config.isTest) {
     Log(config);
@@ -88,6 +114,9 @@ function renderTemplate(config) {
   }
   renderESLint(config);
   renderStylelint(config);
+  renderPrettier(config);
+  renderGitHooks(config);
+  renderPackage(config);
 }
 
 async function init() {

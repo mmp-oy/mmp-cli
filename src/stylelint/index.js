@@ -3,6 +3,7 @@ const prompts = require("prompts");
 const prettier = require("prettier/standalone");
 const parser = require("prettier/parser-babel");
 const { Log } = require("../utils");
+
 const styleList = [
   { title: "scss", value: "scss" },
   { title: "less", value: "less" },
@@ -25,7 +26,6 @@ async function initStylelint() {
 }
 
 function initScssConfig(config) {
-  console.log(config);
   const {
     stylelint: { scss },
   } = config;
@@ -34,6 +34,13 @@ function initScssConfig(config) {
       extends: ["stylelint-config-recommended-scss", "stylelint-config-recess-order"],
       files: ["**/*.scss"],
     });
+    devDependencies = {
+      "stylelint-config-recommended-scss": "^8.0.0",
+      "stylelint-scss": "^4.3.0",
+      "stylelint-config-standard-scss": "^6.1.0",
+    };
+
+    Object.assign(config.files.pkg.devDependencies, devDependencies);
   }
 }
 
@@ -47,6 +54,14 @@ function initLessConfig(config) {
       customSyntax: "postcss-less",
       files: ["**/*.less"],
     });
+    devDependencies = {
+      less: "^4.1.3",
+      "less-loader": "^11.0.0",
+      "postcss-less": "^6.0.0",
+      "stylelint-less": "^1.0.6",
+    };
+
+    Object.assign(config.files.pkg.devDependencies, devDependencies);
   }
 }
 function initStylelintFile(config) {
@@ -63,6 +78,12 @@ function initStylelintFile(config) {
       ],
     },
   };
+  const devDependencies = {
+    "stylelint-config-recess-order": "^3.1.0",
+    "stylelint-config-standard": "^29.0.0",
+  };
+
+  Object.assign(config.files.pkg.devDependencies, devDependencies);
   initScssConfig(config);
   initLessConfig(config);
 }
